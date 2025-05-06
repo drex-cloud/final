@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "488454203012",
+    "project_id": "juakaliconnect-3a10e",
+    "storage_bucket": "juakaliconnect-3a10e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:488454203012:android:3641ed2aa47742b47604d1",
+        "android_client_info": {
+          "package_name": "com.example.juakaliconnect"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCLoMS5I0YVkE20lgjCzS8k2oIlzVfJHXA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
