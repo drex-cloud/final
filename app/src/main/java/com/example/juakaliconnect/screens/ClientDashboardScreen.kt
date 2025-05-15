@@ -1,10 +1,7 @@
 package com.example.juakaliconnect.screens
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -13,18 +10,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.juakaliconnect.navigation.Routes
-import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Message
+import androidx.compose.material.icons.automirrored.filled.Message
 import androidx.compose.material.icons.filled.Star
-
-import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Search
-
-
 
 @Composable
 fun ClientDashboardScreen(navController: NavController) {
+
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp),
         verticalArrangement = Arrangement.Top,
@@ -34,20 +28,20 @@ fun ClientDashboardScreen(navController: NavController) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Browse Requests
+        // 🔹 Browse Requests
         Text(text = "Service Requests", fontWeight = FontWeight.Bold)
         Button(
             onClick = { navController.navigate(Routes.REQUESTS) },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Icon(Icons.Filled.List, contentDescription = "Requests", tint = Color.Black)
+            Icon(Icons.AutoMirrored.Filled.List, contentDescription = "Requests", tint = Color.Black)
             Spacer(modifier = Modifier.width(8.dp))
             Text("View Requests You've Made")
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Browse Artisans
+        // 🔹 Browse Artisans
         Text(text = "Find Skilled Artisans", fontWeight = FontWeight.Bold)
         Button(
             onClick = { navController.navigate("artisan_list") },
@@ -60,23 +54,23 @@ fun ClientDashboardScreen(navController: NavController) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Messaging Feature
+        // 🔹 Messaging Feature
         Text(text = "Your Conversations", fontWeight = FontWeight.Bold)
         Button(
             onClick = { navController.navigate(Routes.CHAT) },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Icon(Icons.Filled.Message, contentDescription = "Messages", tint = Color.Black)
+            Icon(Icons.AutoMirrored.Filled.Message, contentDescription = "Messages", tint = Color.Black)
             Spacer(modifier = Modifier.width(8.dp))
             Text("Go to Messages")
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Reviews Section (Fixed Navigation)
+        // 🔹 Reviews Section (Fixed Navigation)
         Text(text = "Artisan Reviews", fontWeight = FontWeight.Bold)
         Button(
-            onClick = { navController.navigate("artisan_reviews") }, // Removed unnecessary `{artisanId}`
+            onClick = { navController.navigate("artisan_reviews") }, // ✅ No unnecessary `{artisanId}`
             modifier = Modifier.fillMaxWidth()
         ) {
             Icon(Icons.Filled.Star, contentDescription = "Reviews", tint = Color.Black)

@@ -14,7 +14,8 @@ object Routes {
     const val ARTISAN_PROFILE = "artisanProfile/{artisanId}"
     const val ARTISAN_REVIEWS = "artisan_reviews"
     const val REVIEW_SCREEN = "review_screen"
-
+    const val SPLASH = "splash"
+    const val LOGOUT = "logout"
 
 
 }

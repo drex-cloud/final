@@ -3,7 +3,6 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     id("com.google.gms.google-services")
-
 }
 
 android {
@@ -16,7 +15,6 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -42,7 +40,6 @@ android {
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -51,6 +48,8 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+
+    // 🔥 Testing Dependencies
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -58,22 +57,41 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    // 🔥 Firebase BOM (Manages Firebase Versions)
     implementation(platform("com.google.firebase:firebase-bom:33.13.0"))
     implementation("com.google.firebase:firebase-analytics")
-    implementation("com.google.firebase:firebase-auth:22.1.2") // Handles login/signup
-    implementation("com.google.firebase:firebase-firestore:24.6.2")
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-firestore")
+
+    // 🔥 Navigation & Networking
     implementation("androidx.navigation:navigation-compose:2.7.5")
-    implementation("com.squareup.okhttp3:okhttp:4.10.0")
+    implementation("com.squareup.okhttp3:okhttp:4.10.0") {
+        exclude(group = "META-INF", module = "DEPENDENCIES") // ✅ Extra precision in exclusion
+    }
+    implementation("com.android.volley:volley:1.2.1") {
+        exclude(group = "META-INF", module = "DEPENDENCIES") // ✅ Ensures smoother build process
+    }
+
+    // 🔥 Coil for Image Loading
     implementation("io.coil-kt:coil-compose:2.4.0")
-    implementation ("com.google.firebase:firebase-auth:21.0.1")
-    implementation ("com.google.firebase:firebase-firestore:24.4.1")
-    implementation ("com.google.android.gms:play-services-auth:20.7.0")
-    implementation("io.coil-kt:coil-compose:2.4.0")
-    implementation ("androidx.compose.material:material-icons-extended:1.5.0")
-    implementation ("com.google.firebase:firebase-firestore:24.6.0")
-    implementation ("com.google.android.gms:play-services-auth:20.4.0")
+
+    // 🔥 Material Icons
+    implementation("androidx.compose.material:material-icons-extended:1.5.0")
+    implementation("com.google.firebase:firebase-messaging")
+    implementation ("androidx.compose.material3:material3:1.2.0")
+    implementation("androidx.compose.foundation:foundation:1.4.0")
 
 
-    // Stores user data
+    // 🚨 Removed Firebase Admin SDK (`firebase-admin:9.0.0`) - Not for Android Apps!
+}
 
+// 🔥 Global Fix for META-INF Dependency Conflict
+configurations.all {
+    resolutionStrategy.eachDependency {
+        if (requested.group == "META-INF") {
+            useVersion("latest") // ✅ Ensures compatibility across versions
+        }
+    }
+    exclude("META-INF/DEPENDENCIES") // ✅ Prevents duplicate META-INF files in the project
 }

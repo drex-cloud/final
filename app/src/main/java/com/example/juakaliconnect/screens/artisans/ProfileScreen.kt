@@ -16,6 +16,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -28,6 +30,8 @@ import java.io.InputStream
 @Composable
 fun ProfileScreen(navController: NavController, authViewModel: AuthViewModel = viewModel()) {
     val context = LocalContext.current
+    val defaultProfilePic = "https://developer.android.com/images/brand/Android_Robot.png"
+    val backgroundImageUrl = "https://your-domain.com/path-to/qo.jpeg" // Replace with actual image URL
 
     var fullName by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -38,7 +42,6 @@ fun ProfileScreen(navController: NavController, authViewModel: AuthViewModel = v
 
     val userId = authViewModel.auth.currentUser?.uid
 
-    // ✅ Fetch user profile data from Firestore
     LaunchedEffect(userId) {
         userId?.let { id ->
             authViewModel.firestore.collection("users").document(id).get()
@@ -48,8 +51,7 @@ fun ProfileScreen(navController: NavController, authViewModel: AuthViewModel = v
                     bio = document.getString("bio") ?: ""
                     skills = document.getString("skills") ?: ""
                     location = document.getString("location") ?: ""
-                    profilePicUrl = document.getString("profilePic") ?: ""
-                    Log.d("ProfileScreen", "Loaded profile picture: $profilePicUrl")
+                    profilePicUrl = document.getString("profilePic") ?: defaultProfilePic
                 }
                 .addOnFailureListener { error ->
                     Log.e("ProfileScreen", "Error fetching profile: ${error.message}")
@@ -70,63 +72,61 @@ fun ProfileScreen(navController: NavController, authViewModel: AuthViewModel = v
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Top,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(text = "Edit Profile", style = MaterialTheme.typography.headlineSmall)
+    Box(modifier = Modifier.fillMaxSize()) {
+        // ✅ Background Image
+        AsyncImage(
+            model = backgroundImageUrl,
+            contentDescription = "Background Image",
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
+        )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Column(
+            modifier = Modifier.fillMaxSize().padding(16.dp),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(text = "Edit Profile", style = MaterialTheme.typography.headlineSmall, color = Color.White)
 
-        // Display Profile Picture if available
-        if (profilePicUrl.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(16.dp))
+
             AsyncImage(
                 model = profilePicUrl,
                 contentDescription = "Profile Picture",
-                modifier = Modifier
-                    .size(100.dp)
-                    .clip(CircleShape)
+                modifier = Modifier.size(100.dp).clip(CircleShape)
             )
-        } else {
-            Text("No Profile Picture Uploaded")
-        }
 
-        Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-        Button(onClick = { imagePickerLauncher.launch("image/*") }) {
-            Text("Change Profile Picture")
-        }
+            Button(onClick = { imagePickerLauncher.launch("image/*") }) {
+                Text("Change Profile Picture")
+            }
 
-        Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
-        // Editable User Details
-        OutlinedTextField(value = fullName, onValueChange = { fullName = it }, label = { Text("Full Name") })
-        Spacer(modifier = Modifier.height(8.dp))
+            OutlinedTextField(value = fullName, onValueChange = { fullName = it }, label = { Text("Full Name") })
+            Spacer(modifier = Modifier.height(8.dp))
 
-        OutlinedTextField(value = email, onValueChange = { email = it }, label = { Text("Email") })
-        Spacer(modifier = Modifier.height(8.dp))
+            OutlinedTextField(value = email, onValueChange = { email = it }, label = { Text("Email") })
+            Spacer(modifier = Modifier.height(8.dp))
 
-        OutlinedTextField(value = bio, onValueChange = { bio = it }, label = { Text("Bio") })
-        Spacer(modifier = Modifier.height(8.dp))
+            OutlinedTextField(value = bio, onValueChange = { bio = it }, label = { Text("Bio") })
+            Spacer(modifier = Modifier.height(8.dp))
 
-        OutlinedTextField(
-            value = skills,
-            onValueChange = { skills = it },
-            label = { Text("Skills (e.g. Plumbing, Carpentry)") }
-        )
-        Spacer(modifier = Modifier.height(8.dp))
+            OutlinedTextField(value = skills, onValueChange = { skills = it }, label = { Text("Skills") })
+            Spacer(modifier = Modifier.height(8.dp))
 
-        OutlinedTextField(value = location, onValueChange = { location = it }, label = { Text("Location") })
-        Spacer(modifier = Modifier.height(20.dp))
+            OutlinedTextField(value = location, onValueChange = { location = it }, label = { Text("Location") })
+            Spacer(modifier = Modifier.height(20.dp))
 
-        Button(onClick = {
-            authViewModel.updateUserProfile(userId, fullName, email, bio, skills, location, profilePicUrl)
-            Toast.makeText(context, "Profile updated!", Toast.LENGTH_SHORT).show()
-        }) {
-            Text("Save Changes")
+            Button(onClick = {
+                userId?.let { id ->
+                    authViewModel.updateUserProfile(id, fullName, email, bio, skills, location, profilePicUrl)
+                    Toast.makeText(context, "Profile updated!", Toast.LENGTH_SHORT).show()
+                }
+            }) {
+                Text("Save Changes")
+            }
         }
     }
 }

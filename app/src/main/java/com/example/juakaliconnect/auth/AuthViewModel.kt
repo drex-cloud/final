@@ -14,6 +14,7 @@ import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.Response
 import org.json.JSONObject
 import java.io.File
@@ -27,6 +28,7 @@ class AuthViewModel : ViewModel() {
     // Mutable state to track authentication and role
     var userRole = mutableStateOf("")
     var isUserLoggedIn = mutableStateOf(auth.currentUser != null)
+
 
     // Register User and Store Role
     fun registerUser(
@@ -105,7 +107,7 @@ class AuthViewModel : ViewModel() {
                 isUserLoggedIn.value = true
 
                 when (role) {
-                    "Client" -> navController.navigate(Routes.CLIENT_DASHBOARD)
+                    "Client" -> navController.navigate(Routes.ARTISAN_LIST)
                     "Artisan" -> navController.navigate("${Routes.ARTISAN_DASHBOARD}/$artisanId")
                     else -> Log.e("AuthViewModel", "Unexpected role value: $role")
                 }
@@ -134,55 +136,53 @@ class AuthViewModel : ViewModel() {
 
 
 
-fun uploadProfilePicture(imageFile: File, onResult: (String?) -> Unit) {
+    fun uploadProfilePicture(imageFile: File, onResult: (String?) -> Unit) {
         val client = OkHttpClient()
+
+        // 🔹 Corrected RequestBody creation
         val requestBody = MultipartBody.Builder()
             .setType(MultipartBody.FORM)
             .addFormDataPart(
                 "image",
                 imageFile.name,
-                RequestBody.create("image/*".toMediaType(), imageFile)
+                imageFile.asRequestBody("image/*".toMediaType()) // ✅ Fixed
             )
             .build()
 
         val request = Request.Builder()
             .url("https://api.imgur.com/3/upload")
-            .addHeader(
-                "Authorization",
-                "Client-ID 01aaf99a61f0774"
-            ) // Replace with your Imgur API Key
+            .addHeader("Authorization", "Client-ID 01aaf99a61f0774") // Replace with your Imgur API Key
             .post(requestBody)
             .build()
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                Log.e("ImgurUpload", "Failed: ${e.message}")
+                Log.e("ImgurUpload", "❌ Failed: ${e.message}")
                 onResult(null) // Notify failure
             }
 
             override fun onResponse(call: Call, response: Response) {
                 val json = JSONObject(response.body?.string() ?: "")
                 val imageUrl = json.optJSONObject("data")?.getString("link")
-                onResult(imageUrl) // Send URL back
+                onResult(imageUrl) // ✅ Send URL back
             }
         })
     }
-    fun updateUserProfile(userId: String?, fullName: String, email: String, bio: String, skills: String, location: String, profilePicUrl: String) {
-        userId?.let { id ->
-            val updates = mapOf(
-                "fullName" to fullName,
-                "email" to email,
-                "bio" to bio,
-                "skills" to skills,
-                "location" to location,
-                "profilePic" to profilePicUrl
-            )
+    fun updateUserProfile(userId: String, fullName: String, email: String, bio: String, skills: String, location: String, profilePicUrl: String) {
+        val db = FirebaseFirestore.getInstance()
+        val updatedData = mapOf(
+            "fullName" to fullName,
+            "email" to email,
+            "bio" to bio,
+            "skills" to skills,
+            "location" to location,
+            "profilePic" to profilePicUrl
+        )
 
-            firestore.collection("users").document(id).update("profilePic", profilePicUrl)
-                .addOnSuccessListener { Log.d("Firestore", "Profile picture updated successfully!") }
-                .addOnFailureListener { error -> Log.e("Firestore", "Error updating profile picture: ${error.message}") }
-        }
-
+        db.collection("users").document(userId)
+            .update(updatedData)
+            .addOnSuccessListener { Log.d("Firestore", "✅ Profile updated successfully!") }
+            .addOnFailureListener { Log.e("Firestore", "❌ Profile update failed: ${it.message}") }
     }
     }
 
